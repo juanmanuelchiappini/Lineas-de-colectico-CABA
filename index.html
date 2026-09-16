@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de líneas de colectivos de la Ciudad de Buenos Aires</title>
+<style>
+  :root{
+    --azul: #1957c2;
+    --azul-oscuro: #0f3d8a;
+    --azul-claro: #e8f0fd;
+    --bg: #f6f8fb;
+    --panel: #ffffff;
+    --borde: #d9e1ec;
+    --texto: #16202b;
+    --texto-mute: #5b6b7c;
+    --sombra: 0 1px 2px rgba(16,32,55,0.06);
+  }
+  [data-theme="dark"]{
+    --azul: #5b9bff;
+    --azul-oscuro: #1957c2;
+    --azul-claro: #10203a;
+    --bg: #0a0f16;
+    --panel: #101823;
+    --borde: #223046;
+    --texto: #e7edf5;
+    --texto-mute: #94a4b8;
+    --sombra: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    line-height: 1.5;
+  }
+  a{ color: var(--azul); }
+  header.top{
+    background: var(--panel);
+    border-bottom: 1px solid var(--borde);
+    padding: 18px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .top-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .top-row h1{
+    font-size: 1.25rem;
+    margin: 0 0 4px;
+    color: var(--azul-oscuro);
+  }
+  [data-theme="dark"] .top-row h1{ color: var(--azul); }
+  .top-row p{
+    margin:0;
+    font-size: 0.85rem;
+    color: var(--texto-mute);
+    max-width: 60ch;
+  }
+  #toggle-tema{
+    flex-shrink:0;
+    border: 1px solid var(--borde);
+    background: var(--bg);
+    color: var(--texto);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  #toggle-tema:hover{ border-color: var(--azul); }
+  nav.secciones{
+    max-width: 1100px;
+    margin: 10px auto 0;
+    display:flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  nav.secciones a{
+    text-decoration:none;
+    font-size: 0.82rem;
+    color: var(--texto-mute);
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 100px;
+    padding: 5px 12px;
+  }
+  nav.secciones a:hover{ color: var(--azul); border-color: var(--azul); }
+
+  main{ max-width: 1100px; margin: 0 auto; padding: 20px; }
+  section{ margin-bottom: 44px; scroll-margin-top: 130px; }
+  section > h2{
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+    color: var(--azul-oscuro);
+  }
+  [data-theme="dark"] section > h2{ color: var(--azul); }
+  section > .desc{
+    font-size: 0.85rem;
+    color: var(--texto-mute);
+    margin: 0 0 14px;
+  }
+
+  /* Buscador y filtros */
+  .buscador-caja{
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--sombra);
+  }
+  #buscador{
+    width:100%;
+    padding: 11px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--borde);
+    background: var(--bg);
+    color: var(--texto);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+  .fila-filtros{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .fila-filtros > div{ flex: 1 1 150px; }
+  .fila-filtros label{
+    display:block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--texto-mute);
+    margin-bottom: 3px;
+  }
+  .fila-filtros select{
+    width:100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--borde);
+    background: var(--bg);
+    color: var(--texto);
+    font-size: 0.88rem;
+  }
+  #limpiar-filtros{
+    margin-top: 12px;
+    background:none;
+    border: 1px solid var(--borde);
+    color: var(--texto-mute);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    cursor:pointer;
+  }
+  #limpiar-filtros:hover{ color: var(--azul); border-color: var(--azul); }
+  #contador-resultados{
+    font-size: 0.82rem;
+    color: var(--texto-mute);
+    margin: 14px 2px 8px;
+  }
+
+  /* Grilla de líneas */
+  .grilla-lineas{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+  }
+  .tarjeta-linea{
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    box-shadow: var(--sombra);
+  }
+  .tarjeta-linea .cab-num{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .num-badge{
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--azul-oscuro);
+    background: var(--azul-claro);
+    border-radius: 8px;
+    padding: 2px 10px;
+  }
+  [data-theme="dark"] .num-badge{ color: var(--azul); }
+  .tag-zona{
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--texto-mute);
+    border: 1px solid var(--borde);
+    border-radius: 100px;
+    padding: 2px 8px;
+  }
+  .tarjeta-linea .empresa-mini{
+    font-size: 0.78rem;
+    color: var(--texto-mute);
+    margin-bottom: 6px;
+  }
+  .tarjeta-linea .cabeceras-mini{
+    font-size: 0.85rem;
+  }
+  .ficha{
+    margin-top: 12px;
+    border-top: 1px dashed var(--borde);
+    padding-top: 12px;
+    display:none;
+    font-size: 0.85rem;
+  }
+  .tarjeta-linea.abierta .ficha{ display:block; }
+  .ficha .campo{ margin-bottom: 9px; }
+  .ficha .etiqueta{
+    display:block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--texto-mute);
+    margin-bottom: 2px;
+  }
+  .chip{
+    display:inline-block;
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 100px;
+    padding: 2px 9px;
+    margin: 2px 4px 2px 0;
+    font-size: 0.78rem;
+  }
+  .ramal-item{
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 7px 10px;
+    margin-top: 5px;
+    font-size: 0.82rem;
+  }
+  .sin-dato{ color: var(--texto-mute); font-style: italic; }
+  .vacio-resultados{
+    text-align:center;
+    padding: 40px 16px;
+    color: var(--texto-mute);
+    font-size: 0.9rem;
+  }
+
+  /* Listados relacionales: empresas, barrios, cabeceras, colores */
+  .lista-relacional{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .item-relacional{
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 100px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .item-relacional:hover{ border-color: var(--azul); color: var(--azul); }
+  .item-relacional .n{
+    color: var(--texto-mute);
+    font-size: 0.75rem;
+  }
+
+  .relacion-par{
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.87rem;
+  }
+  .relacion-par b{ color: var(--azul-oscuro); }
+  [data-theme="dark"] .relacion-par b{ color: var(--azul); }
+
+  footer{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px 50px;
+    font-size: 0.76rem;
+    color: var(--texto-mute);
+    line-height: 1.6;
+    border-top: 1px solid var(--borde);
+  }
+  footer code{
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-row">
+    <div>
+      <h1>Catálogo de líneas de colectivos de la Ciudad de Buenos Aires</h1>
+      <p>Consulta y organización de información sobre las líneas de colectivo que circulan por CABA: cabeceras, ramales, barrios, empresas y recorridos compartidos.</p>
+    </div>
+    <button id="toggle-tema" type="button">🌙 Modo oscuro</button>
+  </div>
+  <nav class="secciones">
+    <a href="#buscador">Buscador</a>
+    <a href="#todas-lineas">Todas las líneas</a>
+    <a href="#empresas">Empresas</a>
+    <a href="#barrios">Barrios</a>
+    <a href="#cabeceras">Cabeceras</a>
+    <a href="#colores">Colores</a>
+    <a href="#relacionados">Recorridos relacionados</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="buscador">
+    <h2>Buscador</h2>
+    <p class="desc">Buscá por número de línea, empresa, barrio, cabecera, recorrido o color. Los resultados se actualizan automáticamente en "Todas las líneas".</p>
+    <div class="buscador-caja">
+      <input id="buscador-texto" type="text" placeholder="Ej: 152, Belgrano, La Boca, Panamericana...">
+      <div class="fila-filtros">
+        <div>
+          <label for="f-empresa">Empresa</label>
+          <select id="f-empresa"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label for="f-barrio">Barrio</label>
+          <select id="f-barrio"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="f-cabecera">Cabecera</label>
+          <select id="f-cabecera"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label for="f-color">Color</label>
+          <select id="f-color"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="f-zona">Zona</label>
+          <select id="f-zona">
+            <option value="">Todas</option>
+            <option value="CABA">Solo CABA</option>
+            <option value="Ambas">CABA + GBA</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-relacionada">Comparte recorrido con</label>
+          <select id="f-relacionada"><option value="">Todas</option></select>
+        </div>
+      </div>
+      <button id="limpiar-filtros" type="button">Limpiar filtros</button>
+    </div>
+  </section>
+
+  <section id="todas-lineas">
+    <h2>Todas las líneas</h2>
+    <p class="desc">Tocá una línea para ver su ficha completa.</p>
+    <div id="contador-resultados"></div>
+    <div id="grilla-lineas" class="grilla-lineas"></div>
+  </section>
+
+  <section id="empresas">
+    <h2>Empresas</h2>
+    <p class="desc">Seleccioná una empresa para ver todas las líneas que opera.</p>
+    <div id="lista-empresas" class="lista-relacional"></div>
+  </section>
+
+  <section id="barrios">
+    <h2>Barrios</h2>
+    <p class="desc">Seleccioná un barrio para ver las líneas que circulan por él.</p>
+    <div id="lista-barrios" class="lista-relacional"></div>
+  </section>
+
+  <section id="cabeceras">
+    <h2>Cabeceras</h2>
+    <p class="desc">Seleccioná una cabecera de origen o destino para ver las líneas asociadas.</p>
+    <div id="lista-cabeceras" class="lista-relacional"></div>
+  </section>
+
+  <section id="colores">
+    <h2>Colores</h2>
+    <p class="desc">Consulta de líneas por color identificatorio.</p>
+    <div id="lista-colores" class="lista-relacional"></div>
+    <p id="colores-aviso" class="sin-dato" style="margin-top:10px;"></p>
+  </section>
+
+  <section id="relacionados">
+    <h2>Recorridos relacionados</h2>
+    <p class="desc">Líneas que comparten corredores o tramos de recorrido entre sí, según fuentes verificadas.</p>
+    <div id="lista-relacionados"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p><b>Fuentes y alcance:</b> las líneas 60, 152, 59 y 168 combinan tramos de CABA y Gran Buenos Aires; sus datos surgen de fuentes públicas (Wikipedia, portales de recorridos, comunicados de las empresas) recopiladas a la fecha de carga. Las 23 líneas restantes fueron verificadas ramal por ramal contra los recorridos oficiales publicados por el Gobierno de la Ciudad de Buenos Aires (buenosaires.gob.ar/infraestructura/colectivos-0), confirmando que la totalidad de sus ramales inician y finalizan dentro de CABA. Existen otras líneas administradas por la Ciudad (por ejemplo 4, 25, 68 y 151) que quedaron <b>fuera</b> de este catálogo porque al menos uno de sus ramales se extiende hacia el Gran Buenos Aires.</p>
+  <p><b>Sobre el campo "Color":</b> no se incluyó información de color identificatorio por línea porque no pudo verificarse contra una fuente oficial confiable al momento de la carga. Se prefirió dejarlo sin dato antes que inventarlo; la sección "Colores" está preparada para completarse cuando se consiga esa información.</p>
+  <p><b>Sobre "Recorridos relacionados":</b> por el mismo motivo, sólo se cargaron las relaciones de corredores compartidos que pudieron confirmarse (60, 152, 59 y 168, que comparten tramos del corredor norte). El resto de las líneas puede tener recorridos en común no documentados todavía en este catálogo.</p>
+  <p><b>Recorridos y ramales cambian con frecuencia</b> por resoluciones de la Secretaría de Transporte o del Gobierno de la Ciudad: verificá siempre la fuente oficial antes de viajar.</p>
+  <p><b>Cómo agregar o corregir una línea:</b> editá el array <code>lineas</code> dentro de la etiqueta <code>&lt;script&gt;</code> de este mismo archivo, siguiendo el formato de los objetos ya cargados. No hace falta ningún servidor ni proceso de build: es un solo archivo HTML, se sube tal cual a GitHub Pages.</p>
+</footer>
+
+<script>
+/* ============================================================
+   1) DATOS DE LAS LÍNEAS
+   ============================================================
+   Cada línea es un objeto con:
+   - numero, empresa, tipo ("CABA" o "Ambas"), color (string o null)
+   - cabeceras: array de puntos terminales de todos los ramales
+   - barrios: array de barrios/localidades por los que circula
+   - ramales: array de {nombre, recorrido}
+   - comparteCon: array de números de otras líneas con corredores
+     compartidos verificados (vacío si no se pudo verificar)
+   - notas: información adicional relevante
+   Para agregar una línea nueva, copiá un objeto y completá sus campos.
+*/
+const lineas = [
+  {
+    numero: "60",
+    empresa: "Micro Ómnibus Norte S.A. (MONSA)",
+    tipo: "Ambas",
+    color: null,
+    cabeceras: ["Barracas/Constitución", "Barrancas de Belgrano", "San Isidro (Primera Junta y Tiscornia)", "Ingeniero Maschwitz", "Terminal de Ómnibus de Escobar"],
+    barrios: ["Barracas", "Constitución", "Plaza Italia", "Belgrano", "Núñez", "Vicente López", "San Isidro", "Tigre", "Escobar", "Ingeniero Maschwitz", "Benavídez"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Barracas/Constitución – San Isidro, por Av. Cabildo / Av. Maipú / Av. Santa Fe / Av. Centenario" },
+      { nombre: "Ramal B", recorrido: "Rincón de Milberg (Tigre) – Barrancas de Belgrano, por Panamericana" },
+      { nombre: "Ramal C", recorrido: "Ingeniero Maschwitz / Terminal de Escobar – Barrancas de Belgrano, por Panamericana" }
+    ],
+    comparteCon: ["152", "59"],
+    notas: "Una de las líneas más históricas de Buenos Aires (en servicio desde 1931). A fines de 2025 recortó los tramos directos a Constitución y Tigre; ahora Barrancas de Belgrano funciona como cabecera de trasbordo."
+  },
+  {
+    numero: "152",
+    empresa: "Empresa Tandilense S.A.C.I.F.I. y de S.",
+    tipo: "Ambas",
+    color: null,
+    cabeceras: ["La Boca", "Olivos"],
+    barrios: ["La Boca", "Monserrat", "San Telmo", "Puerto Madero", "Barrio Norte", "Palermo", "Colegiales", "Belgrano", "Puente Saavedra", "Núñez", "Florida", "Vicente López", "Olivos"],
+    ramales: [
+      { nombre: "Ramal Directo", recorrido: "La Boca – Retiro – Palermo – Belgrano – Olivos" },
+      { nombre: "Ramal D", recorrido: "La Boca – Olivos, con desvío por Av. Maipú / Av. General Paz en Puente Saavedra" }
+    ],
+    comparteCon: ["60", "59", "168"],
+    notas: "Recorre gran parte de la Costanera Norte y el corredor Cabildo–Maipú compartido con otras líneas del norte del conurbano."
+  },
+  {
+    numero: "59",
+    empresa: "Micro Ómnibus Norte S.A. (MONSA)",
+    tipo: "Ambas",
+    color: null,
+    cabeceras: ["Barracas/Constitución", "Florida", "Munro"],
+    barrios: ["Barracas", "Constitución", "Retiro", "Recoleta", "Palermo", "Belgrano", "Vicente López", "Florida", "Munro"],
+    ramales: [
+      { nombre: "Ramal a Florida", recorrido: "Barracas/Constitución – Florida" },
+      { nombre: "Ramal a Munro", recorrido: "Barracas/Constitución – Munro" }
+    ],
+    comparteCon: ["60", "152"],
+    notas: "La línea más antigua de la ciudad, en servicio desde 1928."
+  },
+  {
+    numero: "168",
+    empresa: "Expreso San Isidro S.A. (ESISA) — Grupo DOTA",
+    tipo: "Ambas",
+    color: null,
+    cabeceras: ["La Boca", "San Isidro"],
+    barrios: ["La Boca", "Constitución", "Monserrat", "Almagro", "Villa Crespo", "Palermo", "Colegiales", "Belgrano", "Puente Saavedra", "Vicente López", "Olivos", "La Lucila", "Acassuso", "San Isidro"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "La Boca – San Isidro, recorrido principal" },
+      { nombre: "Ramal B", recorrido: "La Boca – San Isidro, variante por Av. Córdoba" },
+      { nombre: "Ramal C", recorrido: "La Boca – San Isidro, variante por Concepción Arenal" },
+      { nombre: "Ramal E", recorrido: "Servicio fraccionado La Boca – Plaza Once" }
+    ],
+    comparteCon: ["152", "60"],
+    notas: "Comparte el carril del Metrobús Norte (Cabildo–Maipú) con otras líneas del norte del conurbano."
+  },
+
+  // ------------------------------------------------------------
+  // Líneas exclusivamente porteñas: todos sus ramales arrancan y
+  // terminan dentro de CABA (verificado contra los recorridos
+  // oficiales del GCBA, buenosaires.gob.ar/infraestructura/colectivos-0)
+  // ------------------------------------------------------------
+  {
+    numero: "7",
+    empresa: "Empresa de Transportes Automotores 12 de Octubre S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Retiro", "Parque Nicolás Avellaneda", "Barrio Samoré"],
+    barrios: ["Retiro", "San Nicolás", "Boedo", "Parque Chacabuco", "Floresta", "Parque Avellaneda", "Villa Lugano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Retiro – Parque Nicolás Avellaneda, por Boedo y Parque Chacabuco" },
+      { nombre: "Ramal B", recorrido: "Retiro – Barrio Samoré (Villa Lugano), pasando por Terminal Dellepiane" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "12",
+    empresa: "Transportes Automotores Callao S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Puente Pueyrredón (La Boca)", "Plaza de la Constitución", "Plaza Falucho"],
+    barrios: ["La Boca", "Barracas", "Constitución", "San Cristóbal", "Recoleta", "Palermo"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Puente Pueyrredón – Plaza Falucho" },
+      { nombre: "Ramal B", recorrido: "Plaza Constitución – Plaza Falucho" },
+      { nombre: "Ramal C", recorrido: "Puente Pueyrredón – Plaza Falucho, variante por el Centro Metropolitano de Diseño" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "26",
+    empresa: "17 de Agosto S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Retiro", "Barrio Rivadavia"],
+    barrios: ["Retiro", "Recoleta", "Almagro", "Caballito", "Flores", "Parque Chacabuco"],
+    ramales: [ { nombre: "Único", recorrido: "Retiro – Barrio Rivadavia (Flores/Parque Chacabuco)" } ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "34",
+    empresa: "Juan B. Justo S.A.T.C.I.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Palermo", "Ciudad Universitaria", "Aeroparque Jorge Newbery", "Estación Liniers"],
+    barrios: ["Palermo", "Núñez", "Villa del Parque", "Vélez Sarsfield", "Liniers"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Palermo – Estación Liniers, por Av. Juan B. Justo" },
+      { nombre: "Ramal B", recorrido: "Ciudad Universitaria – Estación Liniers" },
+      { nombre: "Ramal C", recorrido: "Aeroparque Jorge Newbery – Estación Liniers" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "39",
+    empresa: "Transportes Santa Fe S.A.C.E.I.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Chacarita", "Barracas", "Plaza de la Constitución"],
+    barrios: ["Chacarita", "Palermo", "Recoleta", "San Nicolás", "San Telmo", "Barracas", "Constitución"],
+    ramales: [
+      { nombre: "Ramales A/B/C", recorrido: "Chacarita – Barracas, con variantes por Colegiales o Palermo Viejo" },
+      { nombre: "Ramales D/E/F", recorrido: "Chacarita – Plaza de la Constitución, mismas variantes" }
+    ],
+    comparteCon: [],
+    notas: "6 ramales en total (A a F), todos entre Chacarita y Barracas/Constitución."
+  },
+  {
+    numero: "42",
+    empresa: "Transportes Colegiales S.A.C.I.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Nueva Pompeya", "Ciudad Universitaria", "Parque de los Niños"],
+    barrios: ["Pompeya", "Boedo", "Flores", "Caballito", "Villa Crespo", "Chacarita", "Colegiales", "Belgrano", "Núñez"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Nueva Pompeya – Ciudad Universitaria, por Av. Leopoldo Lugones" },
+      { nombre: "Ramal B", recorrido: "Nueva Pompeya (por B° Espora) – Ciudad Universitaria" },
+      { nombre: "Ramal C", recorrido: "Nueva Pompeya (por B° Espora) – Parque de los Niños" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "44",
+    empresa: "DOTA S.A. de Transporte Automotor",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Puente Ezequiel Demonty (ex Puente Alsina)", "Barrancas de Belgrano"],
+    barrios: ["Pompeya", "Flores", "Caballito", "Villa Crespo", "Chacarita", "Colegiales", "Belgrano"],
+    ramales: [ { nombre: "Único", recorrido: "Puente Alsina – Barrancas de Belgrano" } ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "47",
+    empresa: "Línea de Microómnibus 47 S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Centro de Trasbordo Chacarita", "Autódromo Oscar y Juan Gálvez", "Centro de Trasbordo Liniers"],
+    barrios: ["Chacarita", "Villa Ortúzar", "Paternal", "Villa del Parque", "Monte Castro", "Versalles", "Liniers", "Villa Lugano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Chacarita – Autódromo, por Nogoyá" },
+      { nombre: "Ramal B", recorrido: "Chacarita – Autódromo, variante directa" },
+      { nombre: "Ramal C", recorrido: "Chacarita – Centro de Trasbordo Liniers" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "50",
+    empresa: "Nudo S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Playa Subterránea Correo Central", "Hospital Garrahan", "Av. Eva Perón y Gral. Paz", "Terminal de Ómnibus Dellepiane"],
+    barrios: ["Retiro", "San Nicolás", "San Cristóbal", "Boedo", "Parque Chacabuco", "Flores", "Floresta", "Vélez Sarsfield", "Villa Lugano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Correo Central – Av. Eva Perón y Gral. Paz" },
+      { nombre: "Ramal B", recorrido: "Hospital Garrahan – Av. Eva Perón y Gral. Paz" },
+      { nombre: "Ramal C", recorrido: "Correo Central – Terminal Dellepiane" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "61",
+    empresa: "La Central de Vicente López S.A.C.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Plaza Constitución"],
+    barrios: ["Constitución", "San Telmo", "Monserrat", "Retiro", "Puerto Madero"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Circular por el microcentro y Puerto Madero" },
+      { nombre: "Ramal B", recorrido: "Circular, variante por el barrio Rodrigo Bueno" },
+      { nombre: "Ramal C", recorrido: "Retiro – Plaza Constitución" },
+      { nombre: "Ramal D", recorrido: "Plaza Constitución – Once" }
+    ],
+    comparteCon: [],
+    notas: "Línea circular centrada en Plaza Constitución."
+  },
+  {
+    numero: "62",
+    empresa: "La Central de Vicente López S.A.C.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Plaza Constitución"],
+    barrios: ["Constitución", "San Telmo", "Puerto Madero", "Retiro", "Palermo"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Circular Constitución – Palermo, por Av. Figueroa Alcorta" },
+      { nombre: "Ramal B", recorrido: "Circular, variante por el barrio Rodrigo Bueno" },
+      { nombre: "Ramal C", recorrido: "Plaza Constitución – Retiro" }
+    ],
+    comparteCon: [],
+    notas: "Línea circular centrada en Plaza Constitución."
+  },
+  {
+    numero: "64",
+    empresa: "Vuelta de Rocha S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["La Boca", "Predio de Regulación Barrancas de Belgrano"],
+    barrios: ["La Boca", "San Telmo", "Monserrat", "Recoleta", "Palermo", "Belgrano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "La Boca – Barrancas de Belgrano, por Hospital Militar" },
+      { nombre: "Ramal B", recorrido: "La Boca – Barrancas de Belgrano, por el Hipódromo Argentino" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "65",
+    empresa: "La Nueva Metropol S.A.T.A.C.I.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Plaza Constitución", "Barrancas de Belgrano", "Centro de Trasbordo Chacarita"],
+    barrios: ["Constitución", "Boedo", "Almagro", "Villa Crespo", "Chacarita", "Colegiales", "Belgrano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Constitución – Barrancas de Belgrano" },
+      { nombre: "Ramal B", recorrido: "Constitución – Chacarita" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "76",
+    empresa: "Transportes Lope de Vega S.A.C.I.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Nueva Pompeya", "Saavedra"],
+    barrios: ["Pompeya", "Flores", "Floresta", "Villa del Parque", "Villa Urquiza", "Colegiales", "Belgrano", "Núñez", "Saavedra"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Pompeya – Saavedra, por Av. Fernández de la Cruz" },
+      { nombre: "Ramal B", recorrido: "Pompeya – Saavedra, variante por Ana María Janer" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "84",
+    empresa: "General Tomás Guido S.A.C.I.F.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Plaza Constitución", "Villa del Parque"],
+    barrios: ["Constitución", "San Cristóbal", "Almagro", "Caballito", "Villa del Parque"],
+    ramales: [ { nombre: "Único", recorrido: "Plaza Constitución – Villa del Parque" } ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "102",
+    empresa: "Transportes Sargento Cabral Soc. Colectiva",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Estación Lisandro de la Torre", "Barracas", "Plaza Constitución"],
+    barrios: ["Palermo", "Recoleta", "San Nicolás", "Monserrat", "San Telmo", "Barracas", "Constitución"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Estación Lisandro de la Torre – Barracas" },
+      { nombre: "Ramal B", recorrido: "Estación Lisandro de la Torre – Plaza Constitución" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "106",
+    empresa: "Colectiveros Unidos S.A. (CUSA)",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Estación Liniers", "Terminal de Ómnibus Retiro", "Predio de Regulación Puerto de Buenos Aires"],
+    barrios: ["Liniers", "Vélez Sarsfield", "Villa del Parque", "Villa Crespo", "Palermo", "Retiro"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Liniers – Retiro" },
+      { nombre: "Ramal B", recorrido: "Liniers – Puerto de Buenos Aires" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "107",
+    empresa: "Nudo S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Ciudad Universitaria", "Parque Avellaneda"],
+    barrios: ["Núñez", "Belgrano", "Colegiales", "Chacarita", "Villa Crespo", "Caballito", "Flores", "Parque Avellaneda"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Ciudad Universitaria – Parque Avellaneda, por Av. del Libertador" },
+      { nombre: "Ramal B", recorrido: "Ciudad Universitaria – Parque Avellaneda, por Av. Figueroa Alcorta" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "108",
+    empresa: "Empresa de Transporte Tte. Gral. Roca S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Retiro", "Liniers"],
+    barrios: ["Retiro", "Palermo", "Colegiales", "Chacarita", "Villa Urquiza", "Villa del Parque", "Liniers"],
+    ramales: [ { nombre: "Único", recorrido: "Retiro – Liniers" } ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "109",
+    empresa: "Transportes Nueve de Julio S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Estación Liniers", "Predio de Regulación Puerto de Buenos Aires"],
+    barrios: ["Liniers", "Villa del Parque", "Villa Crespo", "Palermo", "Retiro", "Puerto Madero"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Liniers – Puerto de Buenos Aires" },
+      { nombre: "Ramal B", recorrido: "Liniers – Puerto de Buenos Aires, servicio expreso" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "115",
+    empresa: "Transportes Automotores Riachuelo S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Retiro", "Barrio General Manuel Savio", "Plaza Miserere", "Av. Escalada y Av. Coronel Roca"],
+    barrios: ["Retiro", "San Nicolás", "Balvanera", "Boedo", "Parque Patricios", "Pompeya", "Villa Soldati"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Retiro – Barrio Gral. Savio (Villa Soldati), por Flores" },
+      { nombre: "Ramal B", recorrido: "Plaza Miserere – Av. Escalada y Roca" },
+      { nombre: "Ramal C", recorrido: "Retiro – Av. Escalada y Roca, por Barrio Olímpico" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "118",
+    empresa: "Microómnibus Barrancas de Belgrano S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Parque Patricios", "Plaza Miserere", "Barrancas de Belgrano", "Barrio 21-24"],
+    barrios: ["Parque Patricios", "La Boca", "Barracas", "Balvanera", "Recoleta", "Palermo", "Belgrano"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Parque Patricios – Barrancas de Belgrano" },
+      { nombre: "Ramal B", recorrido: "Plaza Miserere – Barrancas de Belgrano" },
+      { nombre: "Ramal C", recorrido: "Plaza Miserere – Barrio 21-24" }
+    ],
+    comparteCon: [],
+    notas: ""
+  },
+  {
+    numero: "132",
+    empresa: "Nuevos Rumbos S.A.",
+    tipo: "CABA",
+    color: null,
+    cabeceras: ["Cementerio de Flores", "Terminal de Ómnibus Retiro"],
+    barrios: ["Flores", "Caballito", "Almagro", "Balvanera", "San Nicolás", "Retiro"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Cementerio de Flores – Retiro, por Av. Carabobo" },
+      { nombre: "Ramal B", recorrido: "Cementerio de Flores – Retiro, por Plaza Pueyrredón" },
+      { nombre: "Ramal C", recorrido: "Plaza Miserere – Retiro" }
+    ],
+    comparteCon: [],
+    notas: ""
+  }
+];
+
+/* ============================================================
+   2) ESTADO DE FILTROS
+   ============================================================ */
+const filtros = { texto: "", empresa: "", barrio: "", cabecera: "", color: "", zona: "", relacionada: "" };
+
+/* ============================================================
+   3) FUNCIONES DE BÚSQUEDA Y FILTRADO
+   ============================================================ */
+function normalizar(s){
+  return (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+
+function textoDeLinea(l){
+  return [
+    l.numero, l.empresa, l.color || "",
+    ...l.cabeceras, ...l.barrios,
+    ...l.ramales.map(r => r.nombre + " " + r.recorrido),
+    ...l.comparteCon, l.notas || ""
+  ].join(" ");
+}
+
+function lineasFiltradas(){
+  const t = normalizar(filtros.texto);
+  return lineas.filter(l => {
+    if (t && !normalizar(textoDeLinea(l)).includes(t)) return false;
+    if (filtros.empresa && l.empresa !== filtros.empresa) return false;
+    if (filtros.barrio && !l.barrios.includes(filtros.barrio)) return false;
+    if (filtros.cabecera && !l.cabeceras.includes(filtros.cabecera)) return false;
+    if (filtros.color && (l.color || "Sin dato") !== filtros.color) return false;
+    if (filtros.zona && l.tipo !== filtros.zona) return false;
+    if (filtros.relacionada && !l.comparteCon.includes(filtros.relacionada)) return false;
+    return true;
+  });
+}
+
+/* ============================================================
+   4) FUNCIONES DE NAVEGACIÓN (secciones relacionales)
+   ============================================================ */
+function valoresUnicos(campo){
+  if (campo === "empresa") return [...new Set(lineas.map(l => l.empresa))];
+  if (campo === "barrio") return [...new Set(lineas.flatMap(l => l.barrios))];
+  if (campo === "cabecera") return [...new Set(lineas.flatMap(l => l.cabeceras))];
+  if (campo === "color") return [...new Set(lineas.map(l => l.color || "Sin dato"))];
+  if (campo === "relacionada") return [...new Set(lineas.flatMap(l => l.comparteCon))];
+  return [];
+}
+
+function contarLineasPor(campo, valor){
+  if (campo === "empresa") return lineas.filter(l => l.empresa === valor).length;
+  if (campo === "barrio") return lineas.filter(l => l.barrios.includes(valor)).length;
+  if (campo === "cabecera") return lineas.filter(l => l.cabeceras.includes(valor)).length;
+  if (campo === "color") return lineas.filter(l => (l.color || "Sin dato") === valor).length;
+  return 0;
+}
+
+function irAResultadosCon(campo, valor){
+  filtros.empresa = campo === "empresa" ? valor : "";
+  filtros.barrio = campo === "barrio" ? valor : "";
+  filtros.cabecera = campo === "cabecera" ? valor : "";
+  filtros.color = campo === "color" ? valor : "";
+  sincronizarSelectsConFiltros();
+  renderizarTodo();
+  document.getElementById("todas-lineas").scrollIntoView({ behavior: "smooth" });
+}
+
+function sincronizarSelectsConFiltros(){
+  document.getElementById("f-empresa").value = filtros.empresa;
+  document.getElementById("f-barrio").value = filtros.barrio;
+  document.getElementById("f-cabecera").value = filtros.cabecera;
+  document.getElementById("f-color").value = filtros.color;
+  document.getElementById("f-zona").value = filtros.zona;
+  document.getElementById("f-relacionada").value = filtros.relacionada;
+}
+
+/* ============================================================
+   5) RENDERIZADO
+   ============================================================ */
+function poblarSelect(id, valores){
+  const el = document.getElementById(id);
+  const actual = el.value;
+  el.innerHTML = el.querySelector("option[value='']").outerHTML;
+  [...valores].sort((a,b) => a.localeCompare(b, "es")).forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v; opt.textContent = v;
+    el.appendChild(opt);
+  });
+  el.value = actual;
+}
+
+function renderizarGrilla(){
+  const resultado = lineasFiltradas();
+  document.getElementById("contador-resultados").textContent =
+    resultado.length + " línea" + (resultado.length === 1 ? "" : "s") + " encontrada" + (resultado.length === 1 ? "" : "s");
+
+  const grilla = document.getElementById("grilla-lineas");
+  if (resultado.length === 0){
+    grilla.innerHTML = '<div class="vacio-resultados">No se encontraron líneas con esos filtros.</div>';
+    return;
+  }
+
+  grilla.innerHTML = resultado.map(l => `
+    <div class="tarjeta-linea" data-num="${l.numero}">
+      <div class="cab-num">
+        <span class="num-badge">${l.numero}</span>
+        <span class="tag-zona">${l.tipo === "CABA" ? "Solo CABA" : "CABA + GBA"}</span>
+      </div>
+      <div class="empresa-mini">${l.empresa}</div>
+      <div class="cabeceras-mini">${l.cabeceras.slice(0,2).join(" · ")}${l.cabeceras.length > 2 ? " …" : ""}</div>
+      <div class="ficha">
+        <div class="campo">
+          <span class="etiqueta">Empresa</span>${l.empresa}
+        </div>
+        <div class="campo">
+          <span class="etiqueta">Color</span>
+          ${l.color ? l.color : '<span class="sin-dato">Sin dato verificado</span>'}
+        </div>
+        <div class="campo">
+          <span class="etiqueta">Cabeceras</span>
+          ${l.cabeceras.map(c => `<span class="chip">${c}</span>`).join("")}
+        </div>
+        <div class="campo">
+          <span class="etiqueta">Barrios</span>
+          ${l.barrios.map(b => `<span class="chip">${b}</span>`).join("")}
+        </div>
+        <div class="campo">
+          <span class="etiqueta">Ramales / Recorrido</span>
+          ${l.ramales.map(r => `<div class="ramal-item"><b>${r.nombre}:</b> ${r.recorrido}</div>`).join("")}
+        </div>
+        <div class="campo">
+          <span class="etiqueta">Líneas relacionadas / recorridos en común</span>
+          ${l.comparteCon.length
+            ? l.comparteCon.map(n => `<span class="chip">Línea ${n}</span>`).join("")
+            : '<span class="sin-dato">Sin datos verificados de recorridos compartidos</span>'}
+        </div>
+        ${l.notas ? `<div class="campo"><span class="etiqueta">Información adicional</span>${l.notas}</div>` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  grilla.querySelectorAll(".tarjeta-linea").forEach(card => {
+    card.addEventListener("click", () => card.classList.toggle("abierta"));
+  });
+}
+
+function renderizarEmpresas(){
+  const cont = document.getElementById("lista-empresas");
+  cont.innerHTML = valoresUnicos("empresa").sort((a,b)=>a.localeCompare(b,"es")).map(e => `
+    <div class="item-relacional" data-campo="empresa" data-valor="${e.replace(/"/g,'&quot;')}">
+      ${e} <span class="n">(${contarLineasPor("empresa", e)})</span>
+    </div>
+  `).join("");
+  cont.querySelectorAll(".item-relacional").forEach(el => {
+    el.addEventListener("click", () => irAResultadosCon("empresa", el.dataset.valor));
+  });
+}
+
+function renderizarBarrios(){
+  const cont = document.getElementById("lista-barrios");
+  cont.innerHTML = valoresUnicos("barrio").sort((a,b)=>a.localeCompare(b,"es")).map(b => `
+    <div class="item-relacional" data-valor="${b.replace(/"/g,'&quot;')}">
+      ${b} <span class="n">(${contarLineasPor("barrio", b)})</span>
+    </div>
+  `).join("");
+  cont.querySelectorAll(".item-relacional").forEach(el => {
+    el.addEventListener("click", () => irAResultadosCon("barrio", el.dataset.valor));
+  });
+}
+
+function renderizarCabeceras(){
+  const cont = document.getElementById("lista-cabeceras");
+  cont.innerHTML = valoresUnicos("cabecera").sort((a,b)=>a.localeCompare(b,"es")).map(c => `
+    <div class="item-relacional" data-valor="${c.replace(/"/g,'&quot;')}">
+      ${c} <span class="n">(${contarLineasPor("cabecera", c)})</span>
+    </div>
+  `).join("");
+  cont.querySelectorAll(".item-relacional").forEach(el => {
+    el.addEventListener("click", () => irAResultadosCon("cabecera", el.dataset.valor));
+  });
+}
+
+function renderizarColores(){
+  const cont = document.getElementById("lista-colores");
+  const valores = valoresUnicos("color");
+  cont.innerHTML = valores.map(c => `
+    <div class="item-relacional" data-valor="${c.replace(/"/g,'&quot;')}">
+      ${c} <span class="n">(${contarLineasPor("color", c)})</span>
+    </div>
+  `).join("");
+  cont.querySelectorAll(".item-relacional").forEach(el => {
+    el.addEventListener("click", () => irAResultadosCon("color", el.dataset.valor));
+  });
+  const sinColor = lineas.filter(l => !l.color).length;
+  document.getElementById("colores-aviso").textContent =
+    sinColor === lineas.length
+      ? "Ninguna línea tiene color identificatorio verificado todavía en este catálogo."
+      : sinColor + " de " + lineas.length + " líneas no tienen color identificatorio verificado.";
+}
+
+function renderizarRelacionados(){
+  const cont = document.getElementById("lista-relacionados");
+  const conRelacion = lineas.filter(l => l.comparteCon.length > 0);
+  if (conRelacion.length === 0){
+    cont.innerHTML = '<p class="sin-dato">Todavía no hay recorridos relacionados verificados en este catálogo.</p>';
+    return;
+  }
+  cont.innerHTML = conRelacion.map(l => `
+    <div class="relacion-par">
+      <b>Línea ${l.numero}</b> comparte tramos de recorrido con: ${l.comparteCon.map(n => `<span class="chip">Línea ${n}</span>`).join("")}
+    </div>
+  `).join("");
+}
+
+function renderizarTodo(){
+  renderizarGrilla();
+  renderizarEmpresas();
+  renderizarBarrios();
+  renderizarCabeceras();
+  renderizarColores();
+  renderizarRelacionados();
+}
+
+function inicializarFiltros(){
+  poblarSelect("f-empresa", valoresUnicos("empresa"));
+  poblarSelect("f-barrio", valoresUnicos("barrio"));
+  poblarSelect("f-cabecera", valoresUnicos("cabecera"));
+  poblarSelect("f-color", valoresUnicos("color"));
+  poblarSelect("f-relacionada", valoresUnicos("relacionada"));
+
+  document.getElementById("buscador-texto").addEventListener("input", e => {
+    filtros.texto = e.target.value; renderizarGrilla();
+  });
+  document.getElementById("f-empresa").addEventListener("change", e => { filtros.empresa = e.target.value; renderizarGrilla(); });
+  document.getElementById("f-barrio").addEventListener("change", e => { filtros.barrio = e.target.value; renderizarGrilla(); });
+  document.getElementById("f-cabecera").addEventListener("change", e => { filtros.cabecera = e.target.value; renderizarGrilla(); });
+  document.getElementById("f-color").addEventListener("change", e => { filtros.color = e.target.value; renderizarGrilla(); });
+  document.getElementById("f-zona").addEventListener("change", e => { filtros.zona = e.target.value; renderizarGrilla(); });
+  document.getElementById("f-relacionada").addEventListener("change", e => { filtros.relacionada = e.target.value; renderizarGrilla(); });
+
+  document.getElementById("limpiar-filtros").addEventListener("click", () => {
+    filtros.texto = ""; filtros.empresa = ""; filtros.barrio = ""; filtros.cabecera = "";
+    filtros.color = ""; filtros.zona = ""; filtros.relacionada = "";
+    document.getElementById("buscador-texto").value = "";
+    sincronizarSelectsConFiltros();
+    renderizarGrilla();
+  });
+}
+
+/* ============================================================
+   6) MODO CLARO / OSCURO
+   ============================================================ */
+function aplicarTema(tema){
+  document.documentElement.setAttribute("data-theme", tema);
+  document.getElementById("toggle-tema").textContent = tema === "dark" ? "☀️ Modo claro" : "🌙 Modo oscuro";
+  try { localStorage.setItem("tema-catalogo-colectivos", tema); } catch(e) {}
+}
+
+function inicializarTema(){
+  let guardado = null;
+  try { guardado = localStorage.getItem("tema-catalogo-colectivos"); } catch(e) {}
+  const prefiereOscuro = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  aplicarTema(guardado || (prefiereOscuro ? "dark" : "light"));
+
+  document.getElementById("toggle-tema").addEventListener("click", () => {
+    const actual = document.documentElement.getAttribute("data-theme");
+    aplicarTema(actual === "dark" ? "light" : "dark");
+  });
+}
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+inicializarTema();
+inicializarFiltros();
+renderizarTodo();
+</script>
+
+</body>
+</html>
