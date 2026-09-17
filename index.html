@@ -194,15 +194,6 @@
     padding: 2px 10px;
   }
   [data-theme="dark"] .num-badge{ color: var(--azul); }
-  .tag-zona{
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: var(--texto-mute);
-    border: 1px solid var(--borde);
-    border-radius: 100px;
-    padding: 2px 8px;
-  }
   .tarjeta-linea .empresa-mini{
     font-size: 0.78rem;
     color: var(--texto-mute);
@@ -346,14 +337,6 @@
           <select id="f-color"><option value="">Todos</option></select>
         </div>
         <div>
-          <label for="f-zona">Zona</label>
-          <select id="f-zona">
-            <option value="">Todas</option>
-            <option value="CABA">Solo CABA</option>
-            <option value="Ambas">CABA + GBA</option>
-          </select>
-        </div>
-        <div>
           <label for="f-relacionada">Comparte recorrido con</label>
           <select id="f-relacionada"><option value="">Todas</option></select>
         </div>
@@ -486,6 +469,72 @@ const lineas = [
   },
 
   // ------------------------------------------------------------
+  // Ampliación: líneas 4, 25, 68 y 151. Estaban transferidas a la
+  // órbita del GCBA pero, a diferencia de las líneas de la sección
+  // siguiente, al menos uno de sus ramales se extiende hacia el
+  // Gran Buenos Aires, por eso quedaron fuera del bloque "exclusivamente
+  // porteñas". Verificadas contra buenosaires.gob.ar/infraestructura/colectivos.
+  // Nota sobre "157": no se encontró ninguna línea 157 vigente (fue una
+  // línea histórica discontinuada hace décadas); se asumió que la línea
+  // pedida era la 151, que es la que había quedado marcada como pendiente.
+  // ------------------------------------------------------------
+  {
+    numero: "4",
+    empresa: "Juan B. Justo S.A.T.C.I.",
+    tipo: "Ambas",
+    color: "Azul en los laterales (Plan de Modernización y Seguridad del GCBA, 2025). El frente conserva el color tradicional de la línea; ese tono puntual no figura en las fuentes oficiales consultadas: Información no disponible.",
+    cabeceras: ["Plaza Roma (Puerto Madero)", "Dársena Sur / Central Costanera (La Boca)", "Lomas del Mirador (Partido de La Matanza, Provincia de Buenos Aires)"],
+    barrios: ["Puerto Madero", "San Telmo", "Monserrat", "San Cristóbal", "Boedo", "Parque Chacabuco", "Flores", "Floresta", "Liniers", "La Boca"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Plaza Roma – Lomas del Mirador, por el Centro de Trasbordo Liniers, Floresta y Parque Chacabuco" },
+      { nombre: "Ramal B", recorrido: "Dársena Sur (Central Costanera) – Lomas del Mirador, con tramo por La Boca (Av. Don Pedro de Mendoza)" }
+    ],
+    comparteCon: [],
+    notas: "Los dos ramales de esta línea terminan en Lomas del Mirador, partido de La Matanza (Provincia de Buenos Aires): la línea no circula exclusivamente dentro de CABA. Información no disponible sobre recorridos en común verificados con otras líneas."
+  },
+  {
+    numero: "25",
+    empresa: "General Tomás Guido S.A.C.I.F.",
+    tipo: "Ambas",
+    color: "Azul en los laterales (Plan de Modernización y Seguridad del GCBA, 2025). Color del frente: Información no disponible.",
+    cabeceras: ["La Boca (Pi y Margall y Av. Almirante Brown)", "Av. Senador Benito Ferro y Av. General Las Heras (Partido de Tres de Febrero, Provincia de Buenos Aires)"],
+    barrios: ["La Boca", "Parque Patricios", "Boedo", "Parque Chacabuco", "Flores", "Floresta", "Vélez Sarsfield", "Villa Devoto", "Villa Pueyrredón"],
+    ramales: [
+      { nombre: "Único", recorrido: "La Boca – Tres de Febrero, por Boedo, Flores y Villa Devoto, con paso por el Centro de Trasbordo Flores" }
+    ],
+    comparteCon: [],
+    notas: "Operada por la misma empresa (General Tomás Guido S.A.C.I.F.) que las líneas 9 y 84. Se extiende hasta el partido de Tres de Febrero, por lo que no circula exclusivamente dentro de CABA."
+  },
+  {
+    numero: "68",
+    empresa: "Transportes Sesenta y Ocho S.R.L.",
+    tipo: "Ambas",
+    color: "Azul en los laterales (Plan de Modernización y Seguridad del GCBA, 2025). Color del frente: Información no disponible.",
+    cabeceras: ["Plaza de Miserere (Balvanera)", "Puente Saavedra / Estación de Transferencia de Vicente López (Partido de Vicente López, Provincia de Buenos Aires)"],
+    barrios: ["Balvanera", "Recoleta", "Palermo", "Colegiales", "Belgrano", "Núñez"],
+    ramales: [
+      { nombre: "Servicio común", recorrido: "Plaza Miserere – Puente Saavedra (Vicente López), por Av. Santa Fe y Av. Cabildo" },
+      { nombre: "Servicio expreso", recorrido: "Mismo recorrido que el servicio común, con menor cantidad de paradas (no circula sábados, domingos ni feriados)" }
+    ],
+    comparteCon: [],
+    notas: "En 2018 fue distinguida como una de las líneas de mejor calidad de servicio del sistema, junto con las líneas 12, 132 y 105 (Información no disponible sobre la fuente original de esa distinción más allá de referencias periodísticas). Se extiende hasta Vicente López, por lo que no circula exclusivamente dentro de CABA."
+  },
+  {
+    numero: "151",
+    empresa: "MODO S.A. de Transporte Automotor (Micro Ómnibus Doscientos Ocho)",
+    tipo: "Ambas",
+    color: "Azul en los laterales (Plan de Modernización y Seguridad del GCBA, 2025). Color del frente: Información no disponible.",
+    cabeceras: ["Predio de Regulación Plaza Constitución", "Barrio 21-24", "Estación de Transferencia de Vicente López (Partido de Vicente López, Provincia de Buenos Aires)"],
+    barrios: ["Constitución", "San Cristóbal", "Almagro", "Villa Crespo", "Colegiales", "Belgrano", "Saavedra"],
+    ramales: [
+      { nombre: "Ramal A", recorrido: "Plaza Constitución – Vicente López, por Av. Córdoba, Av. Cramer y Av. Cabildo" },
+      { nombre: "Ramal B", recorrido: "Barrio 21-24 – Vicente López (ramal incorporado durante 2025 al fusionarse operativamente con la línea 90)" }
+    ],
+    comparteCon: [],
+    notas: "Información no disponible sobre el detalle definitivo de todos sus ramales: durante 2025 el GCBA impulsó por resolución una fusión de recorridos entre las líneas 90 y 151 que modificó su esquema de ramales (A, B, C y D); conviene verificar el estado vigente en la fuente oficial antes de viajar."
+  },
+
+  // ------------------------------------------------------------
   // Líneas exclusivamente porteñas: todos sus ramales arrancan y
   // terminan dentro de CABA (verificado contra los recorridos
   // oficiales del GCBA, buenosaires.gob.ar/infraestructura/colectivos-0)
@@ -591,7 +640,7 @@ const lineas = [
     tipo: "CABA",
     color: null,
     cabeceras: ["Centro de Trasbordo Chacarita", "Autódromo Oscar y Juan Gálvez", "Centro de Trasbordo Liniers"],
-    barrios: ["Chacarita", "Villa Ortúzar", "Paternal", "Villa del Parque", "Monte Castro", "Versalles", "Liniers", "Villa Lugano"],
+    barrios: ["Chacarita", "Villa Ortúzar", "Paternal", "Villa del Parque", "Monte Castro", "Versalles", "Liniers", "Villa Lugano", "Mataderos"],
     ramales: [
       { nombre: "Ramal A", recorrido: "Chacarita – Autódromo, por Nogoyá" },
       { nombre: "Ramal B", recorrido: "Chacarita – Autódromo, variante directa" },
@@ -816,7 +865,7 @@ const lineas = [
 /* ============================================================
    2) ESTADO DE FILTROS
    ============================================================ */
-const filtros = { texto: "", empresa: "", barrio: "", cabecera: "", color: "", zona: "", relacionada: "" };
+const filtros = { texto: "", empresa: "", barrio: "", cabecera: "", color: "", relacionada: "" };
 
 /* ============================================================
    3) FUNCIONES DE BÚSQUEDA Y FILTRADO
@@ -842,7 +891,6 @@ function lineasFiltradas(){
     if (filtros.barrio && !l.barrios.includes(filtros.barrio)) return false;
     if (filtros.cabecera && !l.cabeceras.includes(filtros.cabecera)) return false;
     if (filtros.color && (l.color || "Sin dato") !== filtros.color) return false;
-    if (filtros.zona && l.tipo !== filtros.zona) return false;
     if (filtros.relacionada && !l.comparteCon.includes(filtros.relacionada)) return false;
     return true;
   });
@@ -883,7 +931,6 @@ function sincronizarSelectsConFiltros(){
   document.getElementById("f-barrio").value = filtros.barrio;
   document.getElementById("f-cabecera").value = filtros.cabecera;
   document.getElementById("f-color").value = filtros.color;
-  document.getElementById("f-zona").value = filtros.zona;
   document.getElementById("f-relacionada").value = filtros.relacionada;
 }
 
